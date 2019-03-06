@@ -1,40 +1,94 @@
-# OpenShift Installer
+# OpenShift Installer With Libvirt
 
-## Supported Platforms
+## Checking if nested virtualization is supported in HOST machine
+If you see 1 or Y, nested virtualization is supported; if you see 0 or N, nested virtualization is not supported.
 
-* AWS
-* [Libvirt with KVM](docs/dev/libvirt-howto.md) (development only)
-* OpenStack (experimental)
-
-## Quick Start
-
-First, install all [build dependencies](docs/dev/dependencies.md).
-
-Clone this repository to `src/github.com/openshift/installer` in your [GOPATH](https://golang.org/cmd/go/#hdr-GOPATH_environment_variable). Then build the `openshift-install` binary with:
-
-```sh
-hack/build.sh
+``` 
+$ cat /sys/module/kvm_intel/parameters/nested
+Y 
 ```
 
-This will create `bin/openshift-install`. This binary can then be invoked to create an OpenShift cluster, like so:
+## Enabling nested virtualization
+To enable nested virtualization for Intel processors(if the processors are AMD the replace kvm_intel wirh kvm_amd):
 
-```sh
-bin/openshift-install create cluster
+Shut down all running VMs and unload the kvm_probe module:
+
+`$ modprobe -r kvm_intel`
+
+Activate the nesting feature:
+
+`$ modprobe kvm_intel nested=1`
+
+Nested virtualization is enabled until the host is rebooted. To enable it permanently, add the following line to the `/etc/modprobe.d/kvm.conf` file:
+
+`options kvm_intel nested=1`
+
+## Creating a VM
+* Fedora 29 
+* 16GB Ram
+* 8Vcpu's
+* 100GB HardDisk(make sure ROOT(/) has minimum 50GB available.)
+
+
+## Installing packages in system and Creating a cluster
+
+### Install git
+
+`$ yum install git -y`
+
+### Setting up GO and GOPATH(if GO is not present)
+
+If GO repo is not available. Download the repo from https://go-repo.io/ and then Install.
+
+```
+yum install go -y
+mkdir -p $HOME/go/src/github.com/openshift/
+export GOPATH="$HOME/go"
+cd $HOME/go/src/github.com/openshift/
 ```
 
-The installer will show a series of prompts for user-specific information and use reasonable defaults for everything else.
-In non-interactive contexts, prompts can be bypassed by [providing an `install-config.yaml`](docs/user/overview.md#multiple-invocations).
+### Clone OpenShift Installer
+`
+$ git clone https://github.com/cloudbehl/installer.git -b installer-0.9
+`
 
-If you have trouble, refer to [the troubleshooting guide](docs/user/troubleshooting.md).
+### Install dependency
+`
+$ cd installer/ && ./scripts/maintenance/install-deps.sh
+`
 
-### Connect to the cluster
+### Build the openshift-install binary 
+`
+$ TAGS=libvirt hack/build.sh
+`
 
-Details for connecting to your new cluster are printed by the `openshift-install` binary upon completion, and are also available in the `.openshift_install.log` file.
+### Create an OpenShift cluster
+```
+NOTE:
+You could add ‘--log-level debug’ for a bit more information on progress.
+You could use ‘--dir <dir>’ to save the config and logs to a specific dir.
+```
+
+`
+$ bin/openshift-install create cluster
+`
+
+```
+? Platform libvirt
+
+? Libvirt Connection URI qemu+tcp://192.168.122.1/system
+
+? Base Domain tt.testing
+
+? Cluster Name test1
+
+? Pull Secret [? for help] `'{"auths":{"cloud.openshift.com"}}` # This is demo Pull Secret. please copy your pull from https://try.openshift.com/ and paste it
+```
 
 Example output:
 
 ```sh
-INFO Waiting 10m0s for the openshift-console route to be created...
+INFO Waiting 20m0s for the openshift-console route to be created...
 INFO Install complete!
 INFO Run 'export KUBECONFIG=/path/to/auth/kubeconfig' to manage the cluster with 'oc', the OpenShift CLI.
 INFO The cluster is ready when 'oc login -u kubeadmin -p 5char-5char-5char-5char' succeeds (wait a few minutes).
@@ -42,14 +96,7 @@ INFO Access the OpenShift web-console here: https://console-openshift-console.ap
 INFO Login to the console with user: kubeadmin, password: 5char-5char-5char-5char
 ```
 
-### Cleanup
-
-Destroy the cluster and release associated resources with:
-
-```sh
-openshift-install destroy cluster
-```
-
-Note that you almost certainly also want to clean up the installer state files too, including `auth/`, `terraform.tfstate`, etc.
-The best thing to do is always pass the `--dir` argument to `install` and `destroy`.
-And if you want to reinstall from scratch, `rm -rf` the asset directory beforehand.
+### Clean Setup
+`
+./scripts/extra/cleanup.sh
+`
