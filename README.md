@@ -75,15 +75,15 @@ $ TAGS=libvirt hack/build.sh
 
 ### Create an OpenShift cluster
 ```
+$ export TF_VAR_libvirt_master_memory=4096 TF_VAR_libvirt_master_vcpu=4
+$ bin/openshift-install create cluster
+```
+
+```
 NOTE:
 You could add ‘--log-level debug’ for a bit more information on progress.
 You could use ‘--dir <dir>’ to save the config and logs to a specific dir.
 ```
-
-`
-$ bin/openshift-install create cluster
-`
-
 ```
 ? Platform libvirt
 
