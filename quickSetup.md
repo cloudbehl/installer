@@ -34,7 +34,7 @@ Nested virtualization is enabled until the host is rebooted. To enable it perman
 
 ### Install git
 
-`yum install git -y`
+`$ yum install git -y`
 
 ### Setting up GO and GOPATH
 
