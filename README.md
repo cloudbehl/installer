@@ -109,5 +109,5 @@ INFO Login to the console with user: kubeadmin, password: 5char-5char-5char-5cha
 
 ### Clean Setup
 `
-./scripts/extra/cleanup.sh
+./$HOME/go/src/github.com/openshift//scripts/extra/cleanup.sh
 `
