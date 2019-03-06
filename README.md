@@ -35,7 +35,9 @@ Nested virtualization is enabled until the host is rebooted. To enable it perman
 If you are using a clean fedora 29 VM. Then you can run Below script to setup everything for you and questions mentioned  https://github.com/cloudbehl/installer#create-an-openshift-cluster
 
 ```
-$ ./scripts/extra/setup.sh
+$ wget https://raw.githubusercontent.com/cloudbehl/installer/installer-0.9/scripts/extra/setup.sh
+$ chmod +x setup.sh
+$ ./setup.sh
 ```
 
 ## OR
