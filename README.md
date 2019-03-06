@@ -24,7 +24,7 @@ Nested virtualization is enabled until the host is rebooted. To enable it perman
 `options kvm_intel nested=1`
 
 ## Creating a VM
-* Fedora 29 
+* Fedora 29(https://github.com/cloudbehl/installer/issues/3#issue-417796475) 
 * 16GB Ram
 * 8Vcpu's
 * 100GB HardDisk(make sure ROOT(/) has minimum 50GB available.)
