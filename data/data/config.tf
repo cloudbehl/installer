@@ -4,7 +4,7 @@ terraform {
 
 variable "master_count" {
   type    = "string"
-  default = "1"
+  default = "3"
 
   description = <<EOF
 The number of master nodes to be created.
